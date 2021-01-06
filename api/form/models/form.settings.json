@@ -1,0 +1,27 @@
+{
+  "kind": "collectionType",
+  "collectionName": "forms",
+  "info": {
+    "name": "Form"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "assigned_to": {
+      "plugin": "users-permissions",
+      "model": "user",
+      "via": "forms_to"
+    },
+    "assigned_by": {
+      "plugin": "users-permissions",
+      "model": "user",
+      "via": "forms_by"
+    }
+  }
+}
