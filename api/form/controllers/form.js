@@ -58,16 +58,15 @@ module.exports = {
     const { id: roleId } = ctx?.state?.user?.role ?? {};
     if (ctx.is("multipart")) {
       const { data, files } = parseMultipartData(ctx);
-      entity = await strapi.services.restaurant.create(
-        filterEntity(data, roleId),
-        { files }
-      );
+      entity = await strapi.services.form.create(filterEntity(data, roleId), {
+        files,
+      });
     } else {
-      entity = await strapi.services.restaurant.create(
+      entity = await strapi.services.form.create(
         filterEntity(ctx.request.body, roleId)
       );
     }
-    return sanitizeEntity(entity, { model: strapi.models.restaurant });
+    return sanitizeEntity(entity, { model: strapi.models.form });
   },
 
   async update(ctx) {
@@ -77,7 +76,7 @@ module.exports = {
     let entity;
     if (ctx.is("multipart")) {
       const { data, files } = parseMultipartData(ctx);
-      entity = await strapi.services.restaurant.update(
+      entity = await strapi.services.form.update(
         { id },
         filterEntity(data, roleId),
         {
@@ -85,18 +84,18 @@ module.exports = {
         }
       );
     } else {
-      entity = await strapi.services.restaurant.update(
+      entity = await strapi.services.form.update(
         { id },
         filterEntity(ctx.request.body, roleId)
       );
     }
 
-    return sanitizeEntity(entity, { model: strapi.models.restaurant });
+    return sanitizeEntity(entity, { model: strapi.models.form });
   },
 
   async delete(ctx) {
     const { id } = ctx.params;
-    const entity = await strapi.services.restaurant.delete({ id });
-    return sanitizeEntity(entity, { model: strapi.models.restaurant });
+    const entity = await strapi.services.form.delete({ id });
+    return sanitizeEntity(entity, { model: strapi.models.form });
   },
 };
