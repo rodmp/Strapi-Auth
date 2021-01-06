@@ -43,6 +43,7 @@ module.exports = {
       })
     );
   },
+
   async findOne(ctx) {
     const { id: roleId } = ctx?.state?.user?.role ?? {};
     const { id } = ctx.params;
@@ -50,5 +51,52 @@ module.exports = {
     return sanitizeEntity(filterEntity(entity, roleId), {
       model: strapi.models.form,
     });
+  },
+
+  async create(ctx) {
+    let entity;
+    const { id: roleId } = ctx?.state?.user?.role ?? {};
+    if (ctx.is("multipart")) {
+      const { data, files } = parseMultipartData(ctx);
+      entity = await strapi.services.restaurant.create(
+        filterEntity(data, roleId),
+        { files }
+      );
+    } else {
+      entity = await strapi.services.restaurant.create(
+        filterEntity(ctx.request.body, roleId)
+      );
+    }
+    return sanitizeEntity(entity, { model: strapi.models.restaurant });
+  },
+
+  async update(ctx) {
+    const { id } = ctx.params;
+    const { id: roleId } = ctx?.state?.user?.role ?? {};
+
+    let entity;
+    if (ctx.is("multipart")) {
+      const { data, files } = parseMultipartData(ctx);
+      entity = await strapi.services.restaurant.update(
+        { id },
+        filterEntity(data, roleId),
+        {
+          files,
+        }
+      );
+    } else {
+      entity = await strapi.services.restaurant.update(
+        { id },
+        filterEntity(ctx.request.body, roleId)
+      );
+    }
+
+    return sanitizeEntity(entity, { model: strapi.models.restaurant });
+  },
+
+  async delete(ctx) {
+    const { id } = ctx.params;
+    const entity = await strapi.services.restaurant.delete({ id });
+    return sanitizeEntity(entity, { model: strapi.models.restaurant });
   },
 };
