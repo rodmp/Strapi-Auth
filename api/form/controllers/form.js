@@ -1,5 +1,6 @@
 "use strict";
 const { sanitizeEntity } = require("strapi-utils");
+const _ = require("lodash");
 
 /**
  * Read the documentation (https://strapi.io/documentation/developer-docs/latest/concepts/controllers.html#core-controllers)
@@ -30,7 +31,11 @@ const filterEntity = (entity, roleId) => {
 
 module.exports = {
   async find(ctx) {
-    const { id: roleId } = ctx?.state?.user?.role ?? {};
+    const roleId = _.get(ctx, "state.user.role.id");
+    if (!roleId) {
+      return null;
+    }
+
     let entities;
     if (ctx.query._q) {
       entities = await strapi.services.form.search(ctx.query);
@@ -45,7 +50,10 @@ module.exports = {
   },
 
   async findOne(ctx) {
-    const { id: roleId } = ctx?.state?.user?.role ?? {};
+    const roleId = _.get(ctx, "state.user.role.id");
+    if (!roleId) {
+      return null;
+    }
     const { id } = ctx.params;
     let entity = await strapi.services.form.findOne({ id });
     return sanitizeEntity(filterEntity(entity, roleId), {
@@ -55,7 +63,10 @@ module.exports = {
 
   async create(ctx) {
     let entity;
-    const { id: roleId } = ctx?.state?.user?.role ?? {};
+    const roleId = _.get(ctx, "state.user.role.id");
+    if (!roleId) {
+      return null;
+    }
     if (ctx.is("multipart")) {
       const { data, files } = parseMultipartData(ctx);
       entity = await strapi.services.form.create(filterEntity(data, roleId), {
@@ -71,7 +82,10 @@ module.exports = {
 
   async update(ctx) {
     const { id } = ctx.params;
-    const { id: roleId } = ctx?.state?.user?.role ?? {};
+    const roleId = _.get(ctx, "state.user.role.id");
+    if (!roleId) {
+      return null;
+    }
 
     let entity;
     if (ctx.is("multipart")) {
