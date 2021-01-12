@@ -1,9 +1,13 @@
 const Strapi = require("strapi");
 const http = require("http");
+const request = require("supertest");
 
+/**
+ * Setup Strapi
+ */
 let instance;
 
-async function setupStrapi() {
+const setupStrapi = async () => {
   if (!instance) {
     await Strapi().load();
     instance = strapi;
@@ -14,5 +18,6 @@ async function setupStrapi() {
     instance.server = http.createServer(instance.app.callback());
   }
   return instance;
-}
+};
+
 module.exports = { setupStrapi };

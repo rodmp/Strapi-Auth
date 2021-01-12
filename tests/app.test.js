@@ -1,29 +1,9 @@
-const fs = require("fs");
-const { setupStrapi } = require("./helpers/strapi");
-const path = require("path");
+const { setupStrapi } = require("./utils/helper");
 
-/**
- * this code is called once before any test is called
- */
+let strapi; //Global Strapi Instance
+
 beforeAll(async (done) => {
-  const setup = await setupStrapi(); // singleton so it can be called many times
-  Promise.all([setup]).then(() => {
-    console.log("setup strapi");
-    done();
-  });
-});
-
-/**
- * this code is called once before all the tested are finished
- */
-afterAll(async (done) => {
-  const dbSettings = strapi.config.get("database.connections.default.settings");
-  if (dbSettings && dbSettings.filename) {
-    const tmpDbFile = path.join(__dirname, `../${dbSettings.filename}`);
-    if (fs.existsSync(tmpDbFile)) {
-      fs.unlinkSync(tmpDbFile);
-    }
-  }
+  strapi = await setupStrapi();
   done();
 });
 

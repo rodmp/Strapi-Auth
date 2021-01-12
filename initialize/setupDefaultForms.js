@@ -10,7 +10,6 @@ module.exports = async () => {
       assigned_to: (await filterUsersByUserName(form.assigned_to))[0],
       assigned_by: (await filterUsersByUserName(form.assigned_by))[0],
     };
-    console.log("~~~~ form", form);
 
     let formEntity = await strapi.services.form.findOne({ title: form.title });
     if (formEntity) {

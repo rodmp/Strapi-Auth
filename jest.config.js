@@ -2,5 +2,5 @@
 module.exports = {
   testPathIgnorePatterns: ["/node_modules/", ".tmp", ".cache"],
   testEnvironment: "node",
-  setupFilesAfterEnv: ["./jest.setup.js"],
+  setupFilesAfterEnv: ["<rootDir>/tests/utils/env-setup.js"],
 };
