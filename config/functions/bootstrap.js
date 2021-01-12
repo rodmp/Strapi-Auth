@@ -12,5 +12,7 @@ const { initialize } = require("./../../initialize");
  */
 
 module.exports = async () => {
-  await initialize();
+  if (process.env.NODE_ENV === "development") {
+    await initialize();
+  }
 };
