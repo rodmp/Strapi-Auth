@@ -2,9 +2,8 @@ const { setupStrapi } = require("./utils/helper");
 
 let strapi; //Global Strapi Instance
 
-beforeAll(async (done) => {
+beforeAll(async () => {
   strapi = await setupStrapi();
-  done();
 });
 
 it("strapi is defined", () => {

@@ -1,5 +1,5 @@
-const { setupStrapi } = require("./../utils/helper");
-const request = require("supertest");
+const { setupStrapi, getReqInstance } = require("./../utils/helper");
+const { getLoginQuery } = require("./../utils/queries.js");
 const _ = require("lodash");
 
 let strapi; //Global Strapi Instance
@@ -10,41 +10,42 @@ describe("Users =>", () => {
     done();
   });
 
-  it("should be passed", async () => {
-    const users = strapi.config.get("initialContent.users") || [];
+  /**
+   * should respond with 200
+   */
+  it("It responds with 200 status code and JWT", async () => {
+    const email = "andrescox111@gmail.com";
+    const password = "Test!234";
 
-    for (let i = 0; i < users.length; i++) {
-      const { email, password } = users[i];
-      const jwt = await loginStrapi(strapi)(email, password);
-      strapi.log.info(`Got JWT(${email}) => ${jwt}`);
-    }
+    const mutation = getLoginQuery(email, password);
+    const res = await getReqInstance(strapi)(mutation).expect(200);
+
+    const { jwt, user } = _.get(res, "body.data.login", {});
+    const { statusCode } = _.get(
+      res,
+      "body.errors[0].extensions.exception.data",
+      {}
+    );
+    expect(statusCode).toBeUndefined();
+    expect(jwt).toBeDefined();
+    strapi.log.info(`JWT Token(${email}) => ${jwt}`);
+    expect(user.email).toEqual(email);
+  });
+
+  /**
+   * should respond with 400
+   */
+  it("It responds with 400 status code because of invaid credentials", async () => {
+    const email = "test@gmail.com";
+    const password = "Test!234";
+
+    const mutation = getLoginQuery(email, password);
+    const res = await getReqInstance(strapi)(mutation).expect(200);
+    const { statusCode } = _.get(
+      res,
+      "body.errors[0].extensions.exception.data",
+      {}
+    );
+    expect(statusCode).toEqual(400);
   });
 });
-
-/**
- * Test login API
- * Returns valid JWT token for authenticated
- *
- * @param {*} email
- * @param {*} password
- */
-const loginStrapi = (strapi) => async (email, password) => {
-  const mutation = `mutation {
-    login(input: { identifier: "${email}", password: "${password}" }) {
-      jwt,
-      user{
-        email,
-        username,
-      }
-    }
-  }`;
-
-  const res = await request(strapi.server)
-    .post("/graphql")
-    .set("Content-Type", "application/json")
-    .set("Accept", "application/json")
-    .send({ query: mutation });
-  const { jwt, user } = _.get(res, "body.data.login", {});
-  expect(user.email).toEqual(email);
-  return jwt;
-};

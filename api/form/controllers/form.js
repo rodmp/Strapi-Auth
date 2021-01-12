@@ -30,86 +30,79 @@ const filterEntity = (entity, roleId) => {
 };
 
 module.exports = {
-  async find(ctx) {
-    const roleId = _.get(ctx, "state.user.role.id");
-    if (!roleId) {
-      return null;
-    }
-
-    let entities;
-    if (ctx.query._q) {
-      entities = await strapi.services.form.search(ctx.query);
-    } else {
-      entities = await strapi.services.form.find(ctx.query);
-    }
-    return entities.map((entity) =>
-      sanitizeEntity(filterEntity(entity, roleId), {
-        model: strapi.models.form,
-      })
-    );
-  },
-
-  async findOne(ctx) {
-    const roleId = _.get(ctx, "state.user.role.id");
-    if (!roleId) {
-      return null;
-    }
-    const { id } = ctx.params;
-    let entity = await strapi.services.form.findOne({ id });
-    return sanitizeEntity(filterEntity(entity, roleId), {
-      model: strapi.models.form,
-    });
-  },
-
-  async create(ctx) {
-    let entity;
-    const roleId = _.get(ctx, "state.user.role.id");
-    if (!roleId) {
-      return null;
-    }
-    if (ctx.is("multipart")) {
-      const { data, files } = parseMultipartData(ctx);
-      entity = await strapi.services.form.create(filterEntity(data, roleId), {
-        files,
-      });
-    } else {
-      entity = await strapi.services.form.create(
-        filterEntity(ctx.request.body, roleId)
-      );
-    }
-    return sanitizeEntity(entity, { model: strapi.models.form });
-  },
-
-  async update(ctx) {
-    const { id } = ctx.params;
-    const roleId = _.get(ctx, "state.user.role.id");
-    if (!roleId) {
-      return null;
-    }
-
-    let entity;
-    if (ctx.is("multipart")) {
-      const { data, files } = parseMultipartData(ctx);
-      entity = await strapi.services.form.update(
-        { id },
-        filterEntity(data, roleId),
-        {
-          files,
-        }
-      );
-    } else {
-      entity = await strapi.services.form.update(
-        { id },
-        filterEntity(ctx.request.body, roleId)
-      );
-    }
-
-    return sanitizeEntity(entity, { model: strapi.models.form });
-  },
-
-  async delete(ctx) {
-    const { id } = ctx.params;
-    const entity = await strapi.services.form.delete({ id });
-    return sanitizeEntity(entity, { model: strapi.models.form });
-  },
+  // async find(ctx) {
+  //   const roleId = _.get(ctx, "state.user.role.id");
+  //   if (!roleId) {
+  //     return null;
+  //   }
+  //   let entities;
+  //   if (ctx.query._q) {
+  //     entities = await strapi.services.form.search(ctx.query);
+  //   } else {
+  //     entities = await strapi.services.form.find(ctx.query);
+  //   }
+  //   return entities.map((entity) =>
+  //     sanitizeEntity(filterEntity(entity, roleId), {
+  //       model: strapi.models.form,
+  //     })
+  //   );
+  // },
+  // async findOne(ctx) {
+  //   const roleId = _.get(ctx, "state.user.role.id");
+  //   if (!roleId) {
+  //     return null;
+  //   }
+  //   const { id } = ctx.params;
+  //   let entity = await strapi.services.form.findOne({ id });
+  //   return sanitizeEntity(filterEntity(entity, roleId), {
+  //     model: strapi.models.form,
+  //   });
+  // },
+  // async create(ctx) {
+  //   let entity;
+  //   const roleId = _.get(ctx, "state.user.role.id");
+  //   if (!roleId) {
+  //     return null;
+  //   }
+  //   if (ctx.is("multipart")) {
+  //     const { data, files } = parseMultipartData(ctx);
+  //     entity = await strapi.services.form.create(filterEntity(data, roleId), {
+  //       files,
+  //     });
+  //   } else {
+  //     entity = await strapi.services.form.create(
+  //       filterEntity(ctx.request.body, roleId)
+  //     );
+  //   }
+  //   return sanitizeEntity(entity, { model: strapi.models.form });
+  // },
+  // async update(ctx) {
+  //   const { id } = ctx.params;
+  //   const roleId = _.get(ctx, "state.user.role.id");
+  //   if (!roleId) {
+  //     return null;
+  //   }
+  //   let entity;
+  //   if (ctx.is("multipart")) {
+  //     const { data, files } = parseMultipartData(ctx);
+  //     entity = await strapi.services.form.update(
+  //       { id },
+  //       filterEntity(data, roleId),
+  //       {
+  //         files,
+  //       }
+  //     );
+  //   } else {
+  //     entity = await strapi.services.form.update(
+  //       { id },
+  //       filterEntity(ctx.request.body, roleId)
+  //     );
+  //   }
+  //   return sanitizeEntity(entity, { model: strapi.models.form });
+  // },
+  // async delete(ctx) {
+  //   const { id } = ctx.params;
+  //   const entity = await strapi.services.form.delete({ id });
+  //   return sanitizeEntity(entity, { model: strapi.models.form });
+  // },
 };

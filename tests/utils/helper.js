@@ -20,4 +20,29 @@ const setupStrapi = async () => {
   return instance;
 };
 
-module.exports = { setupStrapi };
+/**
+ * Create Request Instance
+ *
+ * @param {*} strapi
+ */
+const getReqInstance = (strapi) => (mutation) =>
+  request(strapi.server)
+    .post("/graphql")
+    .set("Content-Type", "application/json")
+    .set("Accept", "application/json")
+    .send({ query: mutation });
+
+/**
+ * Create Request Instance
+ *
+ * @param {*} strapi
+ */
+const getReqInstanceWithJWT = (strapi) => (jwt) => (mutation) =>
+  request(strapi.server)
+    .post("/graphql")
+    .set("Content-Type", "application/json")
+    .set("Accept", "application/json")
+    .set("Authorization", `Bearer ${jwt}`)
+    .send({ query: mutation });
+
+module.exports = { setupStrapi, getReqInstance, getReqInstanceWithJWT };
