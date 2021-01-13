@@ -12,17 +12,17 @@ let users = [
   {
     username: "doctor_test",
     password: "Test!234",
-    email: "andrescox111@gmail.com",
+    email: "doctor_test@gmail.com",
   },
   {
     username: "staff_test",
     password: "Test!234",
-    email: "andrescox222@gmail.com",
+    email: "staff_test@gmail.com",
   },
   {
     username: "patient_test",
     password: "Test!234",
-    email: "andrescox333@gmail.com",
+    email: "patient_test@gmail.com",
   },
 ];
 
@@ -60,7 +60,7 @@ describe("Forms =>", () => {
 
   describe("Forms By User", () => {
     for (let i = 0; i < users.length; i++) {
-      it(`It responds with 200 status code by ${users[i].email}`, async () => {
+      it(`It responds with 200 status code by ${users[i].username}`, async () => {
         const mutation = getFormsQuery();
         const res = await getReqInstanceWithJWT(strapi)(users[i].jwt)(
           mutation

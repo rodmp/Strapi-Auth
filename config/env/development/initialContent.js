@@ -12,7 +12,7 @@ module.exports = ({ env }) => ({
     {
       username: "doctor_test",
       password: "Test!234",
-      email: "andrescox111@gmail.com",
+      email: "doctor_test@gmail.com",
       confirmed: false,
       blocked: false,
       created_by: 1,
@@ -21,7 +21,7 @@ module.exports = ({ env }) => ({
     {
       username: "staff_test",
       password: "Test!234",
-      email: "andrescox222@gmail.com",
+      email: "staff_test@gmail.com",
       confirmed: false,
       blocked: false,
       created_by: 1,
@@ -30,7 +30,7 @@ module.exports = ({ env }) => ({
     {
       username: "patient_test",
       password: "Test!234",
-      email: "andrescox333@gmail.com",
+      email: "patient_test@gmail.com",
       confirmed: false,
       blocked: false,
       created_by: 1,

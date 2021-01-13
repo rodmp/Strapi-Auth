@@ -13,8 +13,8 @@ describe("Users =>", () => {
   /**
    * should respond with 200
    */
-  it("It responds with 200 status code and JWT", async () => {
-    const email = "andrescox111@gmail.com";
+  it("It responds with 200 status code and JWT(email: doctor_test@gmail.com)", async () => {
+    const email = "doctor_test@gmail.com";
     const password = "Test!234";
 
     const mutation = getLoginQuery(email, password);
@@ -28,14 +28,14 @@ describe("Users =>", () => {
     );
     expect(statusCode).toBeUndefined();
     expect(jwt).toBeDefined();
-    strapi.log.info(`JWT Token(${email}) => ${jwt}`);
+    strapi.log.info(`JWT Token => ${jwt}`);
     expect(user.email).toEqual(email);
   });
 
   /**
    * should respond with 400
    */
-  it("It responds with 400 status code because of invaid credentials", async () => {
+  it("It responds with 400 status code because of invaid credentials(email: test@gmail.com)", async () => {
     const email = "test@gmail.com";
     const password = "Test!234";
 
