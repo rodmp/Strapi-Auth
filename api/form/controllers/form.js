@@ -7,102 +7,139 @@ const _ = require("lodash");
  * to customize this controller
  */
 
-const formPermissions = {
-  title: [3, 4, 5],
-  assigned_to: [3, 4, 5],
-  assigned_by: [3],
-};
-
 /**
  * Filter entity by role
  *
  * @param {*} entity
  * @param {*} roleId
  */
-const filterEntity = (entity, roleId) => {
-  Object.keys(formPermissions).map((key) => {
-    const permission = formPermissions[key];
-    if (!permission.includes(roleId)) {
-      delete entity[key];
+const filterEntity = (permissions, entity) => {
+  const newEntity = Object.keys(entity).reduce((acc, key) => {
+    const isEnabled = _.get(permissions, `${key}.enabled`, false);
+    if (isEnabled) {
+      acc[key] = entity[key];
     }
-  });
-  return entity;
+    return acc;
+  }, {});
+  return newEntity;
 };
 
+const getPermissions = async (roleId) => {
+  const lang = "en";
+
+  const service = strapi.plugins["users-permissions"].services.userspermissions;
+
+  const plugins = await service.getPlugins(lang);
+
+  const { permissions } = (await service.getRole(roleId, plugins)) || {};
+  return permissions;
+};
+
+/**
+ * Get Form permissions
+ *
+ * @param {*} permissions
+ */
+const getFormFieldPermissions = (permissions) =>
+  _.get(permissions, "application.controllers.form", {});
+
 module.exports = {
-  // async find(ctx) {
-  //   const roleId = _.get(ctx, "state.user.role.id");
-  //   if (!roleId) {
-  //     return null;
-  //   }
-  //   let entities;
-  //   if (ctx.query._q) {
-  //     entities = await strapi.services.form.search(ctx.query);
-  //   } else {
-  //     entities = await strapi.services.form.find(ctx.query);
-  //   }
-  //   return entities.map((entity) =>
-  //     sanitizeEntity(filterEntity(entity, roleId), {
-  //       model: strapi.models.form,
-  //     })
-  //   );
-  // },
-  // async findOne(ctx) {
-  //   const roleId = _.get(ctx, "state.user.role.id");
-  //   if (!roleId) {
-  //     return null;
-  //   }
-  //   const { id } = ctx.params;
-  //   let entity = await strapi.services.form.findOne({ id });
-  //   return sanitizeEntity(filterEntity(entity, roleId), {
-  //     model: strapi.models.form,
-  //   });
-  // },
-  // async create(ctx) {
-  //   let entity;
-  //   const roleId = _.get(ctx, "state.user.role.id");
-  //   if (!roleId) {
-  //     return null;
-  //   }
-  //   if (ctx.is("multipart")) {
-  //     const { data, files } = parseMultipartData(ctx);
-  //     entity = await strapi.services.form.create(filterEntity(data, roleId), {
-  //       files,
-  //     });
-  //   } else {
-  //     entity = await strapi.services.form.create(
-  //       filterEntity(ctx.request.body, roleId)
-  //     );
-  //   }
-  //   return sanitizeEntity(entity, { model: strapi.models.form });
-  // },
-  // async update(ctx) {
-  //   const { id } = ctx.params;
-  //   const roleId = _.get(ctx, "state.user.role.id");
-  //   if (!roleId) {
-  //     return null;
-  //   }
-  //   let entity;
-  //   if (ctx.is("multipart")) {
-  //     const { data, files } = parseMultipartData(ctx);
-  //     entity = await strapi.services.form.update(
-  //       { id },
-  //       filterEntity(data, roleId),
-  //       {
-  //         files,
-  //       }
-  //     );
-  //   } else {
-  //     entity = await strapi.services.form.update(
-  //       { id },
-  //       filterEntity(ctx.request.body, roleId)
-  //     );
-  //   }
-  //   return sanitizeEntity(entity, { model: strapi.models.form });
-  // },
-  // async delete(ctx) {
-  //   const { id } = ctx.params;
-  //   const entity = await strapi.services.form.delete({ id });
-  //   return sanitizeEntity(entity, { model: strapi.models.form });
-  // },
+  async find(ctx) {
+    const roleId = _.get(ctx, "state.user.role.id");
+    const permissions = getFormFieldPermissions(await getPermissions(roleId));
+    if (!permissions) {
+      return null;
+    }
+
+    let entities;
+    if (ctx.query._q) {
+      entities = await strapi.services.form.search(ctx.query);
+    } else {
+      entities = await strapi.services.form.find(ctx.query);
+    }
+
+    return entities.map((entity) =>
+      sanitizeEntity(filterEntity(permissions, entity), {
+        model: strapi.models.form,
+      })
+    );
+  },
+
+  async findOne(ctx) {
+    const roleId = _.get(ctx, "state.user.role.id");
+    const permissions = getFormFieldPermissions(await getPermissions(roleId));
+    if (!permissions) {
+      return null;
+    }
+
+    const { id } = ctx.params;
+    let entity = await strapi.services.form.findOne({ id });
+
+    return sanitizeEntity(filterEntity(permissions, entity), {
+      model: strapi.models.form,
+    });
+  },
+
+  async create(ctx) {
+    let entity;
+
+    const roleId = _.get(ctx, "state.user.role.id");
+    const permissions = getFormFieldPermissions(await getPermissions(roleId));
+    if (!permissions) {
+      return null;
+    }
+
+    if (ctx.is("multipart")) {
+      const { data, files } = parseMultipartData(ctx);
+      entity = await strapi.services.form.create(
+        filterEntity(permissions, data),
+        {
+          files,
+        }
+      );
+    } else {
+      entity = await strapi.services.form.create(
+        filterEntity(permissions, ctx.request.body)
+      );
+    }
+
+    return sanitizeEntity(entity, { model: strapi.models.form });
+  },
+
+  async update(ctx) {
+    const { id } = ctx.params;
+
+    const roleId = _.get(ctx, "state.user.role.id");
+    const permissions = getFormFieldPermissions(await getPermissions(roleId));
+    if (!permissions) {
+      return null;
+    }
+
+    let entity;
+    if (ctx.is("multipart")) {
+      const { data, files } = parseMultipartData(ctx);
+      entity = await strapi.services.form.update(
+        { id },
+        filterEntity(permissions, data),
+        {
+          files,
+        }
+      );
+    } else {
+      entity = await strapi.services.form.update(
+        { id },
+        filterEntity(permissions, ctx.request.body)
+      );
+    }
+
+    return sanitizeEntity(entity, { model: strapi.models.form });
+  },
+
+  async delete(ctx) {
+    const { id } = ctx.params;
+
+    const entity = await strapi.services.form.delete({ id });
+
+    return sanitizeEntity(entity, { model: strapi.models.form });
+  },
 };
